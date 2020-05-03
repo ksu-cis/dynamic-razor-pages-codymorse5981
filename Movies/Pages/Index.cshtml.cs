@@ -18,7 +18,7 @@ namespace Movies.Pages
         /// <summary>
         /// The current search terms 
         /// </summary>
-        [BindProperty]
+        [BindProperty(SupportsGet = true)]
         public string SearchTerms { get; set; } = "";
 
         /// <summary>
@@ -30,30 +30,48 @@ namespace Movies.Pages
         /// <summary>
         /// The filtered genres
         /// </summary>
-        [BindProperty]
+        [BindProperty(SupportsGet = true)]
         public string[] Genres { get; set; }
 
         /// <summary>
         /// The minimum IMDB Rating
         /// </summary>
-        [BindProperty]
+        [BindProperty(SupportsGet = true)]
         public double? IMDBMin { get; set; }
 
         /// <summary>
         /// The maximum IMDB Rating
         /// </summary>
-        [BindProperty]
+        [BindProperty(SupportsGet = true)]
         public double? IMDBMax { get; set; }
 
-        public void OnGet(double? IMDBMin, double? IMDBMax)
+        public void OnGet()
         {
-            this.IMDBMin = IMDBMin;
+
+            /*.IMDBMin = IMDBMin;
             this.IMDBMax = IMDBMax;
             SearchTerms = Request.Query["SearchTerms"];
             MPAARatings = Request.Query["MPAARatings"];
             Movies = MovieDatabase.Search(SearchTerms);
             Movies = MovieDatabase.FilterByMPAARating(Movies, MPAARatings);
             Movies = MovieDatabase.FilterByIMDBRating(Movies, IMDBMin, IMDBMax);
+            */
+
+            Movies = MovieDatabase.All;
+            // Search movie titles for the SearchTerms
+            if (SearchTerms != null)
+            {
+                Movies = Movies.Where(movie => movie.Title != null && movie.Title.Contains(SearchTerms, StringComparison.InvariantCultureIgnoreCase));
+            }
+            // Filter by MPAA Rating 
+            if (MPAARatings != null && MPAARatings.Length != 0)
+            {
+                Movies = Movies.Where(movie =>
+                    movie.MPAARating != null &&
+                    MPAARatings.Contains(movie.MPAARating)
+                    );
+            }
+
         }
     }
 }
